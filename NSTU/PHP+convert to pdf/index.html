@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>База данных</title>
+</head>
+<body>
+<div style="text-align: center;">
+  <br>
+  <?php
+$latest_date = date("Y.m.d");
+$d = date('Y.m.d');
+$date = date_create_from_format('Y.m.d', $d);
+date_sub($date, date_interval_create_from_date_string('1 month')); //меняем нужное кол-во месяцев
+$start_date = date_format($date, 'Y-m-d'); //обязательно присваеваем к переменной т.к. дата находится не в текстововм формате
+$mysqli = new mysqli("IP", "login", "password", "koha_nstu"); //ip, login, password, BD
+if ($conn->connect_error)
+{
+    die("Ошибка: не удается подключиться: " . $conn->connect_error);
+}
+
+$result = $mysqli->query("SELECT 
+type AS 'Тип транзакции', 
+count(datetime) AS 'Кол-во' 
+FROM statistics 
+WHERE date(datetime) BETWEEN '$start_date' AND '$latest_date'
+      AND branch='RU-NoGTU' 
+GROUP BY type 
+ORDER BY type ASC
+"); 
+while ($row = $result->fetch_assoc()) // получаем все строки в цикле по одной
+
+{
+    echo '<p>' . $row['Тип транзакции'] . ' | ' . $row['Кол-во'] . '</p>'; // выводим данные
+   
+}
+?>
+ <h3>Актуальное кол-во библ.записей на период</h3>
+  <?php
+ echo $start_date ;
+ echo " - ";
+echo "$latest_date";
+?>
+</div>
+</body>
+</html>
